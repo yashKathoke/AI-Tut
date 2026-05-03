@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { GenerateRequestInput } from "@/lib/validation"
+import { GenerateRequestInput } from "@/types"
 import { ChevronDown, Loader2, Sparkles, BookOpen } from "lucide-react"
 
 interface InputFormProps {
