@@ -1,22 +1,18 @@
 import { GoogleGenAI } from "@google/genai";
 import { GenerateResponse } from '@/types';
 import { processAIResponse } from './processing';
+import { paraphraseForGrade } from './paraphrase';
 
-/**
- * Entry point for AI content generation.
- * Uses Gemini 3.1 Flash for cost-effective, low-latency educational content.
- */
 const ai = new GoogleGenAI({});
 
 export async function generateContent(topic: string, grade: string): Promise<GenerateResponse> {
-  // Enforce structured output via prompt engineering
   const prompt = `
     You are an educational assistant. Generate structured educational content for a grade ${grade} student on the topic: "${topic}".
     
     You MUST return a valid JSON object with the following structure:
     {
       "summary": "A clear, age-appropriate explanation of the topic.",
-      "simplified_summary": "A very simple, beginner-friendly version of the summary.",
+      "simplified_summary": "A placeholder for simplification.",
       "key_points": ["Point 1", "Point 2", "Point 3"],
       "quiz": [
         {
@@ -40,14 +36,16 @@ export async function generateContent(topic: string, grade: string): Promise<Gen
       contents: prompt,
     });
     
-    if (!response.text) {
-      throw new Error('Upstream AI returned an empty response');
-    }
+    if (!response.text) throw new Error('Empty AI response');
     
-    // Delegate parsing and validation to the processing layer
-    return processAIResponse(response.text);
+    const content = processAIResponse(response.text);
+
+    // Second pass: Enhancing the simplified summary for better quality
+    content.simplified_summary = await paraphraseForGrade(content.summary, grade);
+
+    return content;
   } catch (error) {
-    console.error('Gemini API Invocation Failed:', error);
+    console.error('Content Generation Workflow Failed:', error);
     throw error;
   }
 }
