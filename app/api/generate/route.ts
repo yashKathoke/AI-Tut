@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { validateGenerateRequest } from '@/lib/validation';
+import { generateContent } from '@/lib/ai';
 
 export async function POST(req: Request) {
   try {
@@ -16,27 +17,15 @@ export async function POST(req: Request) {
 
     const { topic, grade } = validation.data;
 
-    // Mock response for now
-    const mockData = {
-      summary: `Detailed explanation of ${topic} for grade ${grade}.`,
-      simplified_summary: `Easy explanation of ${topic} for a ${grade}th grader.`,
-      key_points: [
-        "Key discovery/concept 1",
-        "Key discovery/concept 2",
-        "Key discovery/concept 3"
-      ],
-      quiz: [
-        {
-          question: `What is a primary component of ${topic}?`,
-          options: ["Option A", "Option B", "Option C", "Option D"],
-          correct_answer: "Option A"
-        }
-      ]
-    };
+    // Generate real content using Gemini API
+    const content = await generateContent(topic, grade);
 
-    return NextResponse.json(mockData);
+    return NextResponse.json(content);
   } catch (error) {
     console.error('API Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    
+    // Check if it's an API key issue or something else
+    const message = error instanceof Error ? error.message : 'Internal Server Error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
