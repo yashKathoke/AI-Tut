@@ -36,9 +36,12 @@ export async function generateContent(topic: string, grade: string): Promise<Gen
       contents: prompt,
     });
     
-    if (!response.text) throw new Error('Empty AI response');
+    const text = response.text;
+    if (typeof text !== 'string') {
+      throw new Error('AI response is missing or malformed');
+    }
     
-    const content = processAIResponse(response.text);
+    const content = processAIResponse(text);
 
     // Second pass: Enhancing the simplified summary for better quality
     content.simplified_summary = await paraphraseForGrade(content.summary, grade);
