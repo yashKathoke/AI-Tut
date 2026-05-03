@@ -1,8 +1,20 @@
 import { NextResponse } from 'next/server';
+import { validateGenerateRequest } from '@/lib/validation';
 
 export async function POST(req: Request) {
   try {
-    const { topic, grade } = await req.json();
+    const body = await req.json();
+    
+    // Validate request body
+    const validation = validateGenerateRequest(body);
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: 'Invalid request data', details: validation.error.format() },
+        { status: 400 }
+      );
+    }
+
+    const { topic, grade } = validation.data;
 
     // Mock response for now
     const mockData = {
