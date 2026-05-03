@@ -18,8 +18,6 @@ export const aiResponseSchema = z.object({
   quiz: z.array(quizQuestionSchema).length(3, "Quiz must have exactly 3 questions"),
 });
 
-export type GenerateRequestInput = z.infer<typeof generateRequestSchema>;
-export type AIResponseOutput = z.infer<typeof aiResponseSchema>;
 
 export function validateGenerateRequest(data: any) {
   return generateRequestSchema.safeParse(data);

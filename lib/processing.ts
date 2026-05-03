@@ -1,4 +1,5 @@
-import { validateAIResponse, AIResponseOutput } from './validation';
+import { validateAIResponse } from './validation';
+import { AIResponseOutput } from '@/types';
 
 /**
  * Handles the messy reality of LLM outputs.
